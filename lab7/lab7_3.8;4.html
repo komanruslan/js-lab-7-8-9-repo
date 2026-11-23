@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="Author" lang="uk" content="Коман Руслан">
+    <meta name="Keywords" content="JavaScript, DOM, links, події миші, зображення">
+    <title>Лабораторна робота №7 — Варіант 8, завдання 3.8 і 4</title>
+    <link rel="stylesheet" href="lab5.css">
+    <style>
+        .pic-row img {
+            width: 120px;
+            height: 120px;
+            margin: 6px;
+            border: 3px solid #999;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.15s, opacity 0.15s;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Лабораторна робота №7</h1>
+
+    <form action="#" method="post" id="linksForm">
+        <fieldset>
+            <legend>Завдання 3.8. Посилання форми</legend>
+
+            <p>
+                <a href="https://github.com/" target="_blank">GitHub</a> |
+                <a href="https://moodle.chnu.edu.ua/" target="_blank">Moodle ЧНУ</a> |
+                <a href="https://developer.mozilla.org/uk/docs/Web/JavaScript?lang=uk#intro">MDN JavaScript</a> |
+                <a href="#result3">Перейти до результату</a>
+            </p>
+
+            <input type="button" id="runTaskBtn" value="Run Task">
+            <input type="reset" value="Очистити">
+
+            <br>
+            <label for="result3">Вміст масиву links форми:</label><br>
+            <textarea id="result3" name="result3" readonly style="height: 260px;"></textarea>
+        </fieldset>
+    </form>
+
+    <form action="#" id="imgForm">
+        <fieldset>
+            <legend>Завдання 4. Події миші для малюнків</legend>
+
+            <div class="pic-row">
+                <img id="img1" alt="Малюнок 1">
+                <img id="img2" alt="Малюнок 2">
+                <img id="img3" alt="Малюнок 3">
+            </div>
+
+            <p id="imgStatus">Наведіть курсор на малюнок.</p>
+
+            <label for="imgLog">Журнал подій:</label><br>
+            <textarea id="imgLog" readonly style="height: 150px;"></textarea>
+        </fieldset>
+    </form>
+
+    <script>
+        const linksForm = document.getElementById('linksForm');
+        const result3   = document.getElementById('result3');
+
+        document.getElementById('runTaskBtn').addEventListener('click', function () {
+            const formLinks = linksForm.getElementsByTagName('a');
+            const allLinks  = Array.from(document.links);
+            const lines = [];
+
+            lines.push('Посилань у формі: ' + formLinks.length);
+            lines.push('Посилань у всьому документі (document.links): ' + document.links.length);
+            lines.push('');
+
+            for (let i = 0; i < formLinks.length; i++) {
+                const a = formLinks[i];
+                lines.push('Посилання ' + (i + 1) + ' (document.links[' + allLinks.indexOf(a) + ']):');
+                lines.push('  текст:     ' + a.textContent.trim());
+                lines.push('  href:      ' + a.href);
+                lines.push('  protocol:  ' + a.protocol);
+                lines.push('  host:      ' + a.host);
+                lines.push('  hostname:  ' + a.hostname);
+                lines.push('  port:      ' + (a.port || '—'));
+                lines.push('  pathname:  ' + a.pathname);
+                lines.push('  search:    ' + (a.search || '—'));
+                lines.push('  hash:      ' + (a.hash || '—'));
+                lines.push('  target:    ' + (a.target || '—'));
+                lines.push('');
+            }
+
+            result3.value = lines.join('\n');
+            console.log(result3.value);
+        });
+
+        linksForm.addEventListener('reset', function () {
+            result3.value = '';
+        });
+
+        function makePicture(color, label) {
+            const svg = "<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'>" +
+                        "<rect width='120' height='120' fill='" + color + "'/>" +
+                        "<text x='60' y='70' font-size='36' text-anchor='middle' fill='white' " +
+                        "font-family='Arial'>" + label + "</text></svg>";
+            return 'data:image/svg+xml,' + encodeURIComponent(svg);
+        }
+
+        const pictures = [
+            { id: 'img1', color: '#3498db', label: '1' },
+            { id: 'img2', color: '#e67e22', label: '2' },
+            { id: 'img3', color: '#27ae60', label: '3' }
+        ];
+
+        const imgStatus = document.getElementById('imgStatus');
+        const imgLog    = document.getElementById('imgLog');
+
+        function logEvent(name, text) {
+            imgStatus.textContent = name + ': ' + text;
+            if (name !== 'mousemove') {
+                imgLog.value += name + ' — ' + text + '\n';
+                imgLog.scrollTop = imgLog.scrollHeight;
+            }
+        }
+
+        pictures.forEach(function (p) {
+            const img = document.getElementById(p.id);
+            img.src = makePicture(p.color, p.label);
+
+            img.addEventListener('mouseover', function () {
+                img.style.borderColor = 'red';
+                img.style.transform = 'scale(1.15)';
+                logEvent('mouseover', 'курсор наведено на ' + img.alt);
+            });
+            img.addEventListener('mouseout', function () {
+                img.style.borderColor = '#999';
+                img.style.transform = 'scale(1)';
+                img.style.opacity = '1';
+                logEvent('mouseout', 'курсор залишив ' + img.alt);
+            });
+            img.addEventListener('mousedown', function () {
+                img.style.opacity = '0.5';
+                logEvent('mousedown', 'кнопку миші натиснуто на ' + img.alt);
+            });
+            img.addEventListener('mouseup', function () {
+                img.style.opacity = '1';
+                logEvent('mouseup', 'кнопку миші відпущено на ' + img.alt);
+            });
+            img.addEventListener('click', function () {
+                logEvent('click', 'клік по ' + img.alt);
+            });
+            img.addEventListener('dblclick', function () {
+                logEvent('dblclick', 'подвійний клік по ' + img.alt);
+            });
+            img.addEventListener('mousemove', function (e) {
+                logEvent('mousemove', img.alt + ', координати (' + e.offsetX + '; ' + e.offsetY + ')');
+            });
+        });
+    </script>
+
+</body>
+</html>

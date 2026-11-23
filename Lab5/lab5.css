@@ -1,0 +1,106 @@
+@page {
+    size: portrait;
+    marks: cross;
+    page-break-after: always;
+    page-break-inside: avoid;
+    widows: 2;
+    orphans: 2;
+}
+
+body {
+    font-family: sans-serif, 'Lucida Sans Regular', Cochin, Tahoma, Times;
+    font-weight: 700;
+    font-style: normal;
+    font-variant: small-caps;
+    font-stretch: normal;
+    font-size-adjust: 0.58;
+    background-color: #eef2f5;
+    padding: 30px;
+    color: #2c3e50;
+}
+
+h1 {
+    font-family: Tahoma, sans-serif;
+    font-weight: 900;
+    font-stretch: extra-expanded;
+    text-transform: capitalize;
+    text-decoration: underline;
+    text-align: right;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+}
+
+.system-caption {
+    font: caption;
+    font-stretch: semi-condensed;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.pre-text {
+    white-space: pre;
+    letter-spacing: 1px;
+    color: #555;
+}
+
+.aural-info {
+    volume: soft;
+    volume: 80%;
+    cue-before: url("bell.wav");
+    cue-after: url("chime.wav");
+    play-during: url("bg.mid") mix repeat;
+    pause-before: 10ms;
+    azimuth: left-side;
+    azimuth: right-side;
+    elevation: above;
+    speech-rate: faster;
+    speech-rate: x-slow;
+    pitch-range: 50;
+    richness: 60;
+    stress: 40;
+    speak: spell-out;
+    speak-punctuation: code;
+}
+
+form {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+fieldset {
+    margin-bottom: 20px;
+    padding: 18px;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+}
+
+legend {
+    font-weight: bold;
+    color: #2980b9;
+    padding: 0 8px;
+}
+
+label {
+    display: inline-block;
+    width: 220px;
+    margin-bottom: 10px;
+    font-size: 0.95em;
+}
+
+input, select, textarea, button {
+    padding: 7px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-family: inherit;
+}
+
+textarea {
+    width: 95%;
+    height: 70px;
+    resize: vertical;
+}

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="Author" lang="uk" content="Коман Руслан">
+    <meta name="Description" content="Лабораторна робота №8. Растрова графіка на полотні canvas. Варіант 8.">
+    <meta name="Keywords" content="Web - сторінка, растрова графіка, canvas">
+    <title>Лабораторна робота №8</title>
+    <style>
+        body {
+            background-color: #eef2f5;
+            font-family: sans-serif;
+            padding: 20px;
+        }
+        canvas {
+            border: 1px dashed red;
+            background-color: #ffffff;
+            display: block;
+            max-width: 100%;
+        }
+        .controls {
+            margin-top: 12px;
+        }
+        input[type="button"] {
+            padding: 8px 16px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h3>Лабораторна робота №8. Варіант 8</h3>
+
+    <canvas id="drawingCanvas" width="700" height="480">
+        Браузер не підтримує тег canvas
+    </canvas>
+
+    <div class="controls">
+        <input type="button" id="toggleBtn" value="Запустити трансформацію">
+        <input type="button" id="resetBtn" value="Скинути">
+    </div>
+
+    <script>
+        var canvas, context;
+
+        var koef = 60;
+        var xc = 220;
+        var yc = 290;
+
+        function X(x) { return xc + x * koef; }
+        function Y(y) { return yc - y * koef; }
+
+        var t = 0;               
+        var running = false;
+        var lastTs = 0;
+        var rafId = null;
+
+        window.onload = function () {
+            canvas = document.getElementById("drawingCanvas");
+            context = canvas.getContext("2d");
+
+            document.getElementById("toggleBtn").addEventListener("click", toggleAnimation);
+            document.getElementById("resetBtn").addEventListener("click", resetScene);
+
+            drawScene();
+        };
+
+
+        function fillAndStroke() {
+            context.fill();
+            context.stroke();
+        }
+
+        function box(x, y, w, h) {
+            context.beginPath();
+            context.rect(X(x), Y(y), w * koef, h * koef);
+            fillAndStroke();
+        }
+
+        function centeredSquare() {
+            context.beginPath();
+            context.rect(-koef / 2, -koef / 2, koef, koef);
+            fillAndStroke();
+        }
+
+        var palette = [[0, 0, 255], [255, 0, 0], [255, 255, 0], [0, 128, 0], [0, 0, 255]];
+
+        function circleColor(time) {
+            var p = ((time % 6) / 6) * 4;
+            var i = Math.floor(p);
+            var f = p - i;
+            var a = palette[i], b = palette[i + 1];
+            var r = Math.round(a[0] + (b[0] - a[0]) * f);
+            var g = Math.round(a[1] + (b[1] - a[1]) * f);
+            var bl = Math.round(a[2] + (b[2] - a[2]) * f);
+            return "rgb(" + r + "," + g + "," + bl + ")";
+        }
+
+        function drawAxes() {
+            context.strokeStyle = "black";
+            context.fillStyle = "black";
+            context.lineWidth = 2;
+
+            context.beginPath();
+            context.moveTo(X(-2.7), Y(0));
+            context.lineTo(X(5.9), Y(0));
+            context.stroke();
+            context.beginPath();
+            context.moveTo(X(6.1), Y(0));
+            context.lineTo(X(5.85), Y(0.12));
+            context.lineTo(X(5.85), Y(-0.12));
+            context.closePath();
+            context.fill();
+
+            context.beginPath();
+            context.moveTo(X(0), Y(-2.55));
+            context.lineTo(X(0), Y(3.15));
+            context.stroke();
+            context.beginPath();
+            context.moveTo(X(0), Y(3.4));
+            context.lineTo(X(-0.12), Y(3.12));
+            context.lineTo(X(0.12), Y(3.12));
+            context.closePath();
+            context.fill();
+
+            context.lineWidth = 1;
+            var xs = [-2, -1, 1, 2, 3, 4, 5];
+            for (var i = 0; i < xs.length; i++) {
+                context.beginPath();
+                context.moveTo(X(xs[i]), yc - 18);
+                context.lineTo(X(xs[i]), yc + 18);
+                context.stroke();
+            }
+            var ys = [2, 1, -1, -2];
+            for (var j = 0; j < ys.length; j++) {
+                context.beginPath();
+                context.moveTo(xc - 15, Y(ys[j]));
+                context.lineTo(xc + 15, Y(ys[j]));
+                context.stroke();
+            }
+
+            context.font = "22px 'Times New Roman', serif";
+            context.fillStyle = "black";
+
+            context.textAlign = "center";
+            context.fillText("-2", X(-2) - 10, yc + 25);
+            context.fillText("-1", X(-1) - 10, yc + 25);
+            context.fillText("1", X(1) - 2, yc + 25);
+            context.fillText("2", X(2) + 4, yc + 25);
+            context.fillText("3", X(3) + 5, yc + 25);
+            context.fillText("4", X(4) + 5, yc + 25);
+            context.fillText("5", X(5) + 5, yc + 25);
+
+            context.textAlign = "right";
+            context.fillText("0", xc - 20, yc + 25);
+            context.fillText("2", xc - 20, yc - 102);
+            context.fillText("-1", xc - 20, yc + 85);
+            context.fillText("-2", xc - 20, yc + 145);
+
+            context.textAlign = "left";
+            context.fillText("1", xc + 8, yc - 30);
+            context.fillText("Y", xc + 22, yc - 165);
+            context.fillText("X", xc + 368, yc + 28);
+        }
+
+        function drawScene() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            context.fillStyle = "darkred";
+            context.font = "bold 24px 'Times New Roman', serif";
+            context.textAlign = "left";
+            context.fillText("Лабораторна робота №8, варіант 8", 40, 40);
+
+            context.lineWidth = 1;
+            context.strokeStyle = "black";
+            context.fillStyle = "blue";
+
+            box(1, 3, 3, 1);      
+            box(-2, 1, 2, 1);     
+            box(0, 2, 1, 1);      
+            box(0, -1, 1, 1);     
+
+            context.beginPath();
+            context.moveTo(X(1), Y(0));
+            context.lineTo(X(3), Y(0));
+            context.lineTo(X(2), Y(2));
+            context.closePath();
+            fillAndStroke();
+
+            context.fillStyle = circleColor(t);
+            context.beginPath();
+            context.arc(X(4), Y(1), koef, 0, 2 * Math.PI);
+            fillAndStroke();
+            context.fillStyle = "blue";
+
+            var s = 1 + 0.3 * Math.sin(2 * Math.PI * t / 4);
+            context.save();
+            context.translate(X(2), Y(-1));
+            context.scale(s, s);
+            context.beginPath();
+            context.arc(0, 0, koef, 0, 2 * Math.PI);
+            fillAndStroke();
+            context.restore();
+
+            var dx = 40 * (1 - Math.cos(2 * Math.PI * t / 3));
+            context.save();
+            context.translate(X(5.5) + dx, Y(-1.5));
+            centeredSquare();
+            context.restore();
+
+            context.save();
+            context.translate(X(5.5), Y(1.5));
+            context.rotate(2 * Math.PI * t / 5);
+            centeredSquare();
+            context.restore();
+
+            var skew = (30 * Math.PI / 180) * Math.sin(2 * Math.PI * t / 4);
+            context.save();
+            context.translate(X(3.5), Y(-1.5));
+            context.transform(1, 0, Math.tan(skew), 1, 0, 0);
+            centeredSquare();
+            context.restore();
+
+            drawAxes();
+        }
+
+
+        function frame(ts) {
+            if (!running) return;
+            if (!lastTs) lastTs = ts;
+            t += (ts - lastTs) / 1000;
+            lastTs = ts;
+            drawScene();
+            rafId = requestAnimationFrame(frame);
+        }
+
+        function toggleAnimation() {
+            running = !running;
+            var btn = document.getElementById("toggleBtn");
+            if (running) {
+                lastTs = 0;
+                rafId = requestAnimationFrame(frame);
+                btn.value = "Зупинити трансформацію";
+            } else {
+                cancelAnimationFrame(rafId);
+                btn.value = "Запустити трансформацію";
+            }
+        }
+
+        function resetScene() {
+            running = false;
+            cancelAnimationFrame(rafId);
+            t = 0;
+            document.getElementById("toggleBtn").value = "Запустити трансформацію";
+            drawScene();
+        }
+    </script>
+
+</body>
+</html>

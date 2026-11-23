@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="Author" lang="uk" content="Коман Руслан">
+    <meta name="Description" content="Лабораторна робота №9. Бібліотека аудіо- та відеоресурсів. Варіант 8.">
+    <meta name="Keywords" content="Web - сторінка, аудіо, відео, audio, video, source, медіатека">
+    <title>Лабораторна робота №9 — Варіант 8</title>
+    <link rel="stylesheet" href="lab9.css">
+</head>
+<body>
+
+    <h1>Бібліотека аудіо- та відеоресурсів</h1>
+    <p class="system-caption">Медіатека мультимедійних файлів (Варіант 8)</p>
+
+    <form id="mediaLibraryForm" action="#" method="post">
+
+        <fieldset id="fs-audio">
+            <legend>Бібліотека аудіозаписів (Deltarune OST)</legend>
+
+            <label for="audioSelect">Оберіть аудіотрек:</label>
+            <select id="audioSelect" name="audio_track" onchange="setAudioTrack()">
+                <option value="audio/pandora_palace.mp3" data-title="Toby Fox — Pandora Palace" selected>Toby Fox — Pandora Palace</option>
+                <option value="audio/cyber_world.mp3" data-title="Toby Fox — A CYBER'S WORLD?">Toby Fox — A CYBER'S WORLD?</option>
+                <option value="audio/killer_queen.mp3" data-title="Toby Fox — Attack of the Killer Queen">Toby Fox — Attack of the Killer Queen</option>
+                <option value="audio/big_shot.mp3" data-title="Toby Fox — BIG SHOT">Toby Fox — BIG SHOT</option>
+            </select><br>
+
+            <label for="audioSearch">Швидкий пошук треку:</label>
+            <input type="text" id="audioSearch" list="dl_tracks" placeholder="Оберіть або введіть назву..." onchange="searchAudioTrack()">
+            <datalist id="dl_tracks">
+                <option value="Toby Fox — Pandora Palace"></option>
+                <option value="Toby Fox — A CYBER'S WORLD?"></option>
+                <option value="Toby Fox — Attack of the Killer Queen"></option>
+                <option value="Toby Fox — BIG SHOT"></option>
+            </datalist><br>
+
+            <label for="volumeRange">Гучність аудіо:</label>
+            <input type="range" id="volumeRange" min="0" max="1" step="0.05" value="0.8" oninput="changeVolume(this.value)"><br>
+
+            <label for="audioProgress">Прогрес відтворення:</label>
+            <progress id="audioProgress" max="100" value="0"></progress>
+
+            <figure class="media-box">
+                <audio id="myAudio" controls preload="metadata">
+                    <source src="audio/pandora_palace.mp3" type="audio/mpeg">
+                    <source src="audio/pandora_palace.ogg" type="audio/ogg">
+                    Тег audio не підтримується вашим браузером.
+                </audio>
+                <figcaption id="audioCaption">Зараз обрано: Toby Fox — Pandora Palace</figcaption>
+            </figure>
+        </fieldset>
+
+        <fieldset id="fs-video">
+            <legend>Бібліотека відеоматеріалів</legend>
+
+            <label for="videoSelect">Оберіть відеоролик:</label>
+            <select id="videoSelect" name="video_clip" onchange="setVideoClip()">
+                <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" data-title="Квітка (MDN Test Video)" selected>Квітка (MDN Test Video)</option>
+                <option value="https://media.w3.org/2010/05/sintel/trailer_hd.mp4" data-title="Sintel — Трейлер (W3C HD)">Sintel — Трейлер (W3C HD)</option>
+                <option value="https://media.w3.org/2010/05/bunny/trailer.mp4" data-title="Big Buck Bunny — Трейлер (W3C)">Big Buck Bunny — Трейлер (W3C)</option>
+            </select><br>
+
+            <figure class="media-box">
+                <video id="myVideo" width="580" height="326" controls playsinline preload="metadata">
+                    <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+                    <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm" type="video/webm">
+                    Тег video не підтримується вашим браузером.
+                </video>
+                <figcaption id="videoCaption">Відео: Квітка (MDN Test Video)</figcaption>
+            </figure>
+
+            <details>
+                <summary>Інформація про підтримувані формати та кодеки</summary>
+                <p class="details-text">
+                    Для сумісності з Safari, Brave та іншими браузерами використовуються контейнери MP4 (H.264 + AAC) та WebM для відео, а також MP3 і Ogg для аудіо.
+                </p>
+            </details>
+        </fieldset>
+
+        <fieldset id="fs-controls">
+            <legend>Керування та діагностика</legend>
+
+            <input type="button" value="Пауза для всіх" onclick="pauseAllMedia()">
+            <input type="button" value="Перевірити підтримку відео" onclick="checkVideo()">
+            <input type="reset" value="Скинути вибір" onclick="resetLibrary()">
+
+            <div id="checkVideoResult" class="status-box">
+                Натисніть «Перевірити підтримку відео» для діагностики кодеків браузера.
+            </div>
+        </fieldset>
+
+    </form>
+
+    <script>
+        var audioPlayer = document.getElementById("myAudio");
+        var videoPlayer = document.getElementById("myVideo");
+
+        audioPlayer.addEventListener("timeupdate", function () {
+            if (audioPlayer.duration) {
+                var percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                document.getElementById("audioProgress").value = percent;
+            }
+        });
+
+        function setAudioTrack() {
+            var sel = document.getElementById("audioSelect");
+            var selectedOption = sel.options[sel.selectedIndex];
+
+            videoPlayer.pause();
+            audioPlayer.src = sel.value;
+            audioPlayer.load();
+            document.getElementById("audioCaption").textContent = "Зараз обрано: " + selectedOption.getAttribute("data-title");
+            document.getElementById("audioProgress").value = 0;
+            audioPlayer.play().catch(function () {});
+        }
+
+        function searchAudioTrack() {
+            var inputVal = document.getElementById("audioSearch").value;
+            var sel = document.getElementById("audioSelect");
+
+            for (var i = 0; i < sel.options.length; i++) {
+                if (sel.options[i].getAttribute("data-title") === inputVal) {
+                    sel.selectedIndex = i;
+                    setAudioTrack();
+                    break;
+                }
+            }
+        }
+
+        function changeVolume(val) {
+            audioPlayer.volume = val;
+        }
+
+        function setVideoClip() {
+            var sel = document.getElementById("videoSelect");
+            var selectedOption = sel.options[sel.selectedIndex];
+
+            audioPlayer.pause();
+            videoPlayer.src = sel.value;
+            videoPlayer.load();
+            document.getElementById("videoCaption").textContent = "Відео: " + selectedOption.getAttribute("data-title");
+            videoPlayer.play().catch(function () {});
+        }
+
+        function pauseAllMedia() {
+            audioPlayer.pause();
+            videoPlayer.pause();
+        }
+
+        function resetLibrary() {
+            pauseAllMedia();
+            var firstAudio = document.getElementById("audioSelect").options[0];
+            var firstVideo = document.getElementById("videoSelect").options[0];
+
+            audioPlayer.src = firstAudio.value;
+            audioPlayer.load();
+            videoPlayer.src = firstVideo.value;
+            videoPlayer.load();
+
+            document.getElementById("audioProgress").value = 0;
+            document.getElementById("audioCaption").textContent = "Зараз обрано: " + firstAudio.getAttribute("data-title");
+            document.getElementById("videoCaption").textContent = "Відео: " + firstVideo.getAttribute("data-title");
+        }
+
+        function checkVideo() {
+            var resultBox = document.getElementById("checkVideoResult");
+            if (!!document.createElement("video").canPlayType) {
+                var vidTest = document.createElement("video");
+                var oggTest = vidTest.canPlayType('video/ogg; codecs="theora, vorbis"');
+                var h264Test = vidTest.canPlayType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
+
+                if (!oggTest && !h264Test) {
+                    resultBox.textContent = "Вибачте. Браузер не підтримує ці відеокодеки.";
+                } else if (h264Test === "probably" || oggTest === "probably") {
+                    resultBox.textContent = "Так! Браузер повністю підтримує відтворення HTML5-відео.";
+                } else {
+                    resultBox.textContent = "Браузер частково підтримує відтворення HTML5-відео.";
+                }
+            } else {
+                resultBox.textContent = "Вибачте. Тег <video> не підтримується.";
+            }
+        }
+    </script>
+
+</body>
+</html>

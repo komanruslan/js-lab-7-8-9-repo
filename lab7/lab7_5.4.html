@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="Author" lang="uk" content="Коман Руслан">
+    <meta name="Keywords" content="JavaScript, регулярні вирази, цілі числа">
+    <title>Лабораторна робота №7 — Варіант 8, завдання 5</title>
+    <link rel="stylesheet" href="lab5.css">
+</head>
+<body>
+
+    <h1>Пошук цілих чисел у тексті</h1>
+
+    <form action="#" method="post" id="searchForm">
+
+        <fieldset>
+            <legend>Вхідний текст</legend>
+
+            <label for="inputText">Введіть текст:</label><br>
+            <textarea id="inputText" name="input_text" placeholder="Вставте або введіть текст...">У 2024 році магазин продав 150 ноутбуків і 87 смартфонів. Середня ціна 1299,99 грн, знижка 5% та температура -3 градуси. Код товару A12 не рахується.</textarea><br>
+
+            <input type="button" id="searchBtn" value="Пошук інформації">
+            <input type="reset" id="resetBtn" value="Очистити">
+        </fieldset>
+
+        <fieldset>
+            <legend>Результат</legend>
+
+            <p id="summary">Натисніть «Пошук інформації».</p>
+
+            <label for="resultText">Знайдені цілі числа:</label><br>
+            <textarea id="resultText" name="result_text" readonly></textarea>
+        </fieldset>
+
+    </form>
+
+    <script>
+        const INTEGER_RE = /(?<![\p{L}\d_.,])[-+]?\d+(?![\p{L}\d_]|[.,]\d)/gu;
+
+        function findIntegers(text) {
+            return text.match(INTEGER_RE) || [];
+        }
+
+        const inputText  = document.getElementById('inputText');
+        const resultText = document.getElementById('resultText');
+        const summary    = document.getElementById('summary');
+
+        document.getElementById('searchBtn').addEventListener('click', function () {
+            const text = inputText.value;
+
+            if (text.trim() === '') {
+                summary.textContent = 'Введіть текст для пошуку.';
+                resultText.value = '';
+                return;
+            }
+
+            const found = findIntegers(text);
+            summary.textContent = 'Кількість цілих чисел: ' + found.length;
+            resultText.value = found.length
+                ? found.map(function (n, i) { return (i + 1) + ') ' + n; }).join('\n')
+                : 'Цілих чисел не знайдено.';
+        });
+
+        document.getElementById('searchForm').addEventListener('reset', function () {
+            summary.textContent = 'Натисніть «Пошук інформації».';
+            resultText.value = '';
+        });
+    </script>
+
+</body>
+</html>

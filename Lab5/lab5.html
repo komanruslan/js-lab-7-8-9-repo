@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабораторна робота №5 — Варіант 8</title>
+    <link rel="stylesheet" href="lab5.css">
+</head>
+<body>
+
+    <h1>Оформлення замовлення товарів</h1>
+
+    <p class="system-caption">Форма реєстрації покупця та вибору товару</p>
+    <p class="pre-text">Будь ласка,    заповнюйте    дані    уважно.</p>
+
+    <form action="#"
+          method="post"
+          novalidate="novalidate"
+          enctype="multipart/form-data"
+          accept-charset="UTF-8"
+          style="border-top: 5px solid #3498db;"
+          id="orderForm">
+
+        <fieldset style="background-color: #fcfcfc;" dir="ltr" id="fs-user">
+            <legend>Особисті дані клієнта</legend>
+
+            <input type="hidden" name="user_role" value="customer">
+
+            <label for="phone">Номер телефону:</label>
+            <input type="tel"
+                   id="phone"
+                   name="user_phone"
+                   dir="ltr"
+                   title="Введіть ваш контактний номер"
+                   maxlength="13"
+                   placeholder="+380000000000"><br>
+
+            <label for="pass">Пароль облікового запису:</label>
+            <input type="password"
+                   id="pass"
+                   name="user_pass"
+                   maxlength="20"
+                   min="6"
+                   placeholder="******"><br>
+
+            <label for="sys_notes">Примітка системи (Read-only):</label><br>
+            <textarea id="sys_notes"
+                      title="Системний статус"
+                      placeholder="Статус..."
+                      wrap="hard"
+                      readonly
+                      disabled
+                      autofocus>Знижка 5% застосована для нового клієнта.</textarea><br>
+        </fieldset>
+
+        <fieldset style="background-color: #ffffff;" dir="ltr" id="fs-product">
+            <legend>Вибір товару та параметрів</legend>
+
+            <label for="product_cat">Категорія товару:</label>
+            <select id="product_cat" name="category" required form="orderForm" autofocus>
+                <option lang="uk" id="opt_def" value="" disabled selected>-- Оберіть категорію --</option>
+                <option lang="uk" id="opt_1" value="laptop">Ноутбуки</option>
+                <option lang="uk" id="opt_2" value="phone">Смартфони</option>
+            </select><br>
+
+            <label for="prod_name">Модель (автодоповнення):</label>
+            <input type="text" id="prod_name" name="product_name" list="dl_products" placeholder="Введіть назву...">
+            <datalist id="dl_products" class="custom-dl" title="Список товарів">
+                <option value="Asus ROG Zephyrus"></option>
+                <option value="iPhone 15 Pro"></option>
+                <option value="Samsung Galaxy S24"></option>
+            </datalist><br>
+
+            <label for="ram">Об'єм оперативної пам'яті (ГБ):</label>
+            <input type="range" id="ram" name="ram_size" min="8" max="64" value="16"><br>
+
+            <label>Заповнення анкети:</label>
+            <progress lang="uk" title="Прогрес" max="100" value="85"></progress><br>
+
+            <label for="m_stock">Залишок на складі:</label>
+            <meter id="m_stock" min="0" max="100" value="75" high="80"></meter><br>
+        </fieldset>
+
+        <details>
+            <summary dir="ltr" title="Деталі доставки" style="cursor: pointer; color: #2980b9; margin-bottom: 10px;">
+                Умови безкоштовної доставки
+            </summary>
+            <p style="font-size: 0.85em; padding-left: 10px;">Безкоштовна доставка надається при замовленні від 2000 грн.</p>
+        </details>
+
+        <fieldset style="background-color: #fcfcfc;" dir="ltr" id="fs-actions">
+            <legend>Дії з формою</legend>
+
+            <label>Оформити через фото-кнопку:</label>
+            <input type="image"
+                   src="https://via.placeholder.com/120x35/3498db/ffffff?text=Замовити"
+                   alt="Замовити"
+                   height="35"
+                   formaction="#submit"
+                   formtarget="_self"><br>
+
+            <input type="button" value="Перевірити ціну" onclick="alert('Ціна підтверджена!')">
+
+            <button type="submit"
+                    disabled
+                    formmethod="post"
+                    form="orderForm"
+                    value="disabled_btn">
+                Заблокована кнопка
+            </button>
+
+            <input type="reset" value="Скинути форму">
+        </fieldset>
+
+    </form>
+
+</body>
+</html>

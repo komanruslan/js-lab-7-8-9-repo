@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="Author" lang="uk" content="Коман Руслан">
+    <meta name="Keywords" content="JavaScript, масиви">
+    <title>Лабораторна робота №7 — Варіант 8, завдання 6.8</title>
+    <link rel="stylesheet" href="lab5.css">
+</head>
+<body>
+
+    <h1>Робота з масивом</h1>
+
+    <form action="#" method="post" id="arrayForm">
+
+        <fieldset>
+            <legend>Завдання 6.8. Масив A розміру N</legend>
+
+            <label for="sizeN">Розмір масиву N:</label>
+            <input type="number" id="sizeN" name="size_n" min="1" max="1000" value="10"><br>
+
+            <label for="manualA">Елементи A (необов'язково):</label>
+            <input type="text" id="manualA" name="manual_a" placeholder="наприклад: 3 -5 8 0 12 7"><br>
+
+            <p>Якщо елементи не введено, масив A заповнюється випадковими цілими числами від -20 до 20.
+               Перша половина елементів множиться на 2, друга — на 3
+               (при непарному N середній елемент входить до другої половини).</p>
+
+            <input type="button" id="arrayBtn" value="Array Task">
+            <input type="reset" value="Очистити">
+        </fieldset>
+
+        <fieldset>
+            <legend>Результат</legend>
+            <textarea id="arrayResult" name="array_result" readonly style="height: 150px;"></textarea>
+        </fieldset>
+
+    </form>
+
+    <script>
+        const sizeInput = document.getElementById('sizeN');
+        const manualInput = document.getElementById('manualA');
+        const output = document.getElementById('arrayResult');
+
+        document.getElementById('arrayBtn').addEventListener('click', function () {
+            let A;
+            const raw = manualInput.value.trim();
+
+            if (raw !== '') {
+                A = raw.split(/[\s,;]+/).map(Number);
+                if (A.some(isNaN)) {
+                    output.value = 'Помилка: елементи масиву мають бути числами.';
+                    return;
+                }
+            } else {
+                const n = parseInt(sizeInput.value, 10);
+                if (!Number.isInteger(n) || n < 1 || n > 1000) {
+                    output.value = 'Помилка: N має бути цілим числом від 1 до 1000.';
+                    return;
+                }
+                A = Array.from({ length: n }, function () {
+                    return Math.floor(Math.random() * 41) - 20;
+                });
+            }
+
+            const N = A.length;
+            const half = Math.floor(N / 2);
+
+            const B = A.map(function (x, i) {
+                return i < half ? x * 2 : x * 3;
+            });
+
+            const text =
+                'N = ' + N + '\n' +
+                'Масив A:\n' + A.join(', ') + '\n\n' +
+                'Перша половина (' + half + ' ел.) × 2, друга (' + (N - half) + ' ел.) × 3\n' +
+                'Результат:\n' + B.join(', ');
+
+            output.value = text;
+            console.log(text);
+        });
+
+        document.getElementById('arrayForm').addEventListener('reset', function () {
+            output.value = '';
+        });
+    </script>
+
+</body>
+</html>
